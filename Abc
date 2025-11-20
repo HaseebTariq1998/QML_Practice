@@ -1,0 +1,61 @@
+pragma once
+#include <QAbstractListModel>
+
+struct AlertItem {
+    int id;
+    QString name;
+    QString severity;
+};
+
+class AlertModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+public:
+    enum Roles {
+        IdRole = Qt::UserRole + 1,
+        NameRole,
+        SeverityRole
+    };
+
+    explicit AlertModel(QObject *parent = nullptr)
+        : QAbstractListModel(parent)
+    {
+        // Sample data
+        m_items.append({1, "Engine Overheat", "High"});
+        m_items.append({2, "Low Fuel", "Medium"});
+        m_items.append({3, "Door Open", "Low"});
+    }
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override {
+        Q_UNUSED(parent)
+        return m_items.count();
+    }
+
+    QVariant data(const QModelIndex &index, int role) const override {
+        if (!index.isValid())
+            return {};
+
+        const AlertItem &item = m_items[index.row()];
+
+        switch (role) {
+        case IdRole:       return item.id;
+        case NameRole:     return item.name;
+        case SeverityRole: return item.severity;
+        }
+        return {};
+    }
+
+protected:
+    // 🔥 THIS IS WHERE YOU RETURN ROLE NAMES
+    QHash<int, QByteArray> roleNames() const override {
+        QHash<int, QByteArray> roles;
+        roles[IdRole]       = "id";
+        roles[NameRole]     = "name";
+        roles[SeverityRole] = "severity";
+        return roles;
+    }
+
+private:
+    QList<AlertItem> m_items;
+};
